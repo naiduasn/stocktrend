@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -18,6 +19,14 @@ type Security struct {
 	Symbol     string  `json:"Symbol"`
 	CZG        float64 `json:"CZG"`
 	// Add other fields as needed
+}
+
+var increasedCounter map[string]int
+var decreasedCounter map[string]int
+
+func init() {
+	increasedCounter = make(map[string]int)
+	decreasedCounter = make(map[string]int)
 }
 
 func fetchJSONData(url string) ([]Security, error) {
@@ -76,8 +85,64 @@ func compareJSON(oldJSON, newJSON []Security) []map[string]interface{} {
 
 	// Sort positionChanges by PositionDiff (highest rank)
 	sortByPositionDiff(positionChanges)
+	//updateCounters(oldJSON, newJSON)
 
 	return positionChanges
+}
+
+func compareJSONByCZG(oldJSON, newJSON []Security) {
+
+	var changes []Security
+
+	for _, oldSec := range oldJSON {
+		for _, newSec := range newJSON {
+			if oldSec.Symbol == newSec.Symbol && math.Abs(oldSec.CZG-newSec.CZG) >= 1 {
+				changes = append(changes, newSec)
+				break // Exit inner loop once found
+			}
+		}
+	}
+	fmt.Println("========================================")
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+	fmt.Fprintln(w, "Name\tCZG\t")
+	for _, obj := range changes {
+		fmt.Printf("%v\t%v\n",
+			obj.Symbol,
+			obj.CZG,
+			// Add other fields as needed...
+		)
+	}
+	w.Flush()
+	//fmt.Println(changes)
+
+}
+
+func updateCounters(oldJSON, newJSON []Security) {
+	// Reset counters
+	increasedCounter = make(map[string]int)
+	decreasedCounter = make(map[string]int)
+
+	// Update increasedCounter and decreasedCounter
+	for _, oldSec := range oldJSON {
+		decreasedCounter[oldSec.Symbol]++
+	}
+	for _, newSec := range newJSON {
+		increasedCounter[newSec.Symbol]++
+	}
+
+	// Reduce counter for symbols in both increase and decrease
+	for symbol := range increasedCounter {
+		if count, found := decreasedCounter[symbol]; found {
+			// Symbol present in both, reduce the counter
+			diff := increasedCounter[symbol] - count
+			if diff > 0 {
+				increasedCounter[symbol] = diff
+			} else {
+				decreasedCounter[symbol] = -diff
+				delete(increasedCounter, symbol)
+			}
+		}
+	}
 }
 
 func abs(x int) int {
@@ -96,10 +161,21 @@ func sortByPositionDiff(changes []map[string]interface{}) {
 	}
 }
 
+func sortByChangeDiff(changes []map[string]interface{}) {
+	for i := range changes {
+		for j := i + 1; j < len(changes); j++ {
+			if changes[i]["CZG"].(int) < changes[j]["CZG"].(int) {
+				changes[i], changes[j] = changes[j], changes[i]
+			}
+		}
+	}
+}
+
 func printTable(changes []map[string]interface{}, oldJSON []Security) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 
 	// Print table headers
+	fmt.Println("=======================================================")
 	fmt.Fprintln(w, "Name\tCZG\tOld Position\tNew Position\tPositionDiff")
 
 	// Print table rows
@@ -148,11 +224,13 @@ func main() {
 
 		// Compare new data with previous data
 		changes := compareJSON(previousData, newData)
+		compareJSONByCZG(previousData, newData)
 		// Print ranked changes
-		fmt.Println("Ranked changes based on PositionDiff (highest rank):")
+		//fmt.Println("Ranked changes based on PositionDiff (highest rank):")
 		printTable(changes, previousData)
-
+		//fmt.Println(increasedCounter)
+		//fmt.Println(decreasedCounter)
 		// Update previous data for the next comparison
-		previousData = newData
+		//previousData = newData
 	}
 }
