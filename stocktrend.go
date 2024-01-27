@@ -193,6 +193,24 @@ func printTable(changes []map[string]interface{}, oldJSON []Security) {
 	w.Flush()
 }
 
+func updatePreviousData(oldJSON, newJSON []Security, previousData []Security) []Security {
+	// Create a map to store names of stocks in oldJSON
+	existingStocks := make(map[string]bool)
+	for _, stock := range oldJSON {
+		existingStocks[stock.Symbol] = true
+	}
+
+	// Iterate through newJSON to find and add new stocks to previousData
+	for _, stock := range newJSON {
+		if _, exists := existingStocks[stock.Symbol]; !exists {
+			// If stock is not in existing stocks, add it to previousData
+			previousData = append(previousData, stock)
+		}
+	}
+
+	return previousData
+}
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -232,5 +250,6 @@ func main() {
 		//fmt.Println(decreasedCounter)
 		// Update previous data for the next comparison
 		//previousData = newData
+		previousData = updatePreviousData(previousData, newData, previousData)
 	}
 }
