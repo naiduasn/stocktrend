@@ -30,6 +30,7 @@ func main() {
 	delayStr := os.Getenv("DELAY")
 	niftyurl := os.Getenv("NIFTYURL")
 	livePriceUrl := os.Getenv("PAYTMLIVEPRICEURL")
+	ptmjwt := os.Getenv("PTMJWT")
 	fmt.Println(delayStr)
 	delay, err := strconv.Atoi(delayStr)
 	if err != nil {
@@ -40,7 +41,7 @@ func main() {
 	data, err := utils.GetCSVDataFromURL(niftyurl)
 	fmt.Println(delay, err)
 
-	pricedata, err := paytm.FetchLivePrices(livePriceUrl, data)
+	pricedata, err := paytm.FetchLivePrices(ptmjwt, livePriceUrl, data)
 	fmt.Println(string(pricedata), err)
 
 	fmt.Println("Fetching data from", url)
