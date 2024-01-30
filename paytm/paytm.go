@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/naiduasn/stocktrend/store"
 )
 
 func FetchLivePrices(token string, url string, data [][]string) ([]byte, error) {
@@ -52,6 +54,8 @@ func FetchLivePrices(token string, url string, data [][]string) ([]byte, error) 
 				}
 			}
 		}
+
+		store.Ingest(filteredArray)
 
 		// Create a new map with the filtered array
 		filteredResult := map[string][]map[string]interface{}{"data": filteredArray}

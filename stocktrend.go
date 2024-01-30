@@ -41,12 +41,13 @@ func main() {
 	data, err := utils.GetCSVDataFromURL(niftyurl)
 	fmt.Println(delay, err)
 
-	pricedata, err := paytm.FetchLivePrices(ptmjwt, livePriceUrl, data)
-	fmt.Println(string(pricedata), err)
-
+	for {
+		pricedata, err := paytm.FetchLivePrices(ptmjwt, livePriceUrl, data)
+		fmt.Println(string(pricedata), err)
+		time.Sleep(time.Duration(delay) * time.Minute)
+	}
 	fmt.Println("Fetching data from", url)
 	//getSedgeData(url, delay)
-
 }
 
 func getSedgeData(url string, delay int) {
