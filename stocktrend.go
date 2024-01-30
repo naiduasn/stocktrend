@@ -7,7 +7,9 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/naiduasn/stocktrend/paytm"
 	sedge "github.com/naiduasn/stocktrend/sedge"
+	"github.com/naiduasn/stocktrend/utils"
 
 	"github.com/joho/godotenv"
 )
@@ -26,6 +28,9 @@ func main() {
 	}
 	url := os.Getenv("URL")
 	delayStr := os.Getenv("DELAY")
+	niftyurl := os.Getenv("NIFTYURL")
+	livePriceUrl := os.Getenv("PAYTMLIVEPRICEURL")
+	ptmjwt := os.Getenv("PTMJWT")
 	fmt.Println(delayStr)
 	delay, err := strconv.Atoi(delayStr)
 	if err != nil {
@@ -33,6 +38,19 @@ func main() {
 		return
 	}
 
+	data, err := utils.GetCSVDataFromURL(niftyurl)
+	fmt.Println(delay, err)
+
+	for {
+		pricedata, err := paytm.FetchLivePrices(ptmjwt, livePriceUrl, data)
+		fmt.Println(string(pricedata), err)
+		time.Sleep(time.Duration(delay) * time.Minute)
+	}
+	fmt.Println("Fetching data from", url)
+	//getSedgeData(url, delay)
+}
+
+func getSedgeData(url string, delay int) {
 	previousData, err := sedge.FetchJSONData(url)
 	if err != nil {
 		fmt.Println("Failed to fetch data:", err)
