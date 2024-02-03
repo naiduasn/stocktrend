@@ -10,7 +10,7 @@ import (
 	"github.com/naiduasn/stocktrend/store"
 )
 
-func FetchLivePrices(token string, url string, data [][]string) ([]byte, error) {
+func FetchLivePrices(token string, url string, data [][]string, symbolMap map[float64]string) ([]byte, error) {
 	const maxConcatenations = 50
 	var placeholders []string
 	for i := 1; i < len(data); i++ {
@@ -55,7 +55,7 @@ func FetchLivePrices(token string, url string, data [][]string) ([]byte, error) 
 			}
 		}
 
-		store.InsertData(filteredArray)
+		store.InsertData(filteredArray, symbolMap)
 
 		// Create a new map with the filtered array
 		filteredResult := map[string][]map[string]interface{}{"data": filteredArray}
