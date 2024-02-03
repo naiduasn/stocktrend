@@ -40,14 +40,14 @@ func init() {
 
 }
 
-func InsertData(data []map[string]interface{}) error {
+func InsertData(data []map[string]interface{}, symbolMap map[float64]string) error {
 	start_time := time.Now()
 	points := []*influxdb3.Point{}
-
 	for _, stockData := range data {
 		// Create a new point
 		point := influxdb3.NewPointWithMeasurement("prices").
 			SetTag("SecurityID", strconv.FormatInt(int64(stockData["security_id"].(float64)), 10)).
+			SetTag("Symbol", symbolMap[stockData["security_id"].(float64)]).
 			SetDoubleField("Price", stockData["last_price"].(float64)).
 			SetDoubleField("CZG", stockData["change_percent"].(float64)).SetTimestamp(time.Now())
 

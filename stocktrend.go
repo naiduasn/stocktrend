@@ -30,10 +30,22 @@ func main() {
 	}
 
 	data, err := utils.GetCSVDataFromURL(niftyurl)
+	SymbolMap := make(map[float64]string)
+	for i, record := range data {
+		if i == 0 {
+			continue
+		}
+		symbol := record[0]
+		securityID, err := strconv.ParseFloat(record[1], 64)
+		if err != nil {
+			panic(err)
+		}
+		SymbolMap[securityID] = symbol
+	}
 	fmt.Println(delay, err)
 
 	for {
-		pricedata, err := paytm.FetchLivePrices(ptmjwt, livePriceUrl, data)
+		pricedata, err := paytm.FetchLivePrices(ptmjwt, livePriceUrl, data, SymbolMap)
 		fmt.Println(string(pricedata), err)
 		time.Sleep(time.Duration(delay) * time.Minute)
 	}
