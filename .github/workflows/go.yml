@@ -37,6 +37,6 @@ jobs:
           prefix: /artifacts
           region: ap-south-1
           bucket: stocktrend
-          partSize: 10
+          part-size: 10
       
           
