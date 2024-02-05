@@ -26,3 +26,16 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+
+    - name: Upload to Amazon S3
+      uses: Noelware/s3-action@2 # this can be `master` or a tagged release
+      with:
+          files: stocktrend
+          access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          secret-key: ${{ secrets.AWS_SECRET_KEY }}
+          endpoint: s3.amazonaws.com
+          prefix: /artifacts
+          region: ap-south-1
+          bucket: stocktrend
+      
+          
