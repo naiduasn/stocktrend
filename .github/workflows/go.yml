@@ -28,7 +28,7 @@ jobs:
       run: go test -v ./...
 
     - name: Upload to Amazon S3
-      uses: Noelware/s3-action@2 # this can be `master` or a tagged release
+      uses: Noelware/s3-action@master # this can be `master` or a tagged release
       with:
           files: stocktrend
           access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
