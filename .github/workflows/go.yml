@@ -22,16 +22,20 @@ jobs:
         go-version: '1.21'
 
     - name: Build
-      run: go build -v ./...
+      run: go build -v .
+
+    - name: List binaries
+      run: |
+        ls
 
     - name: Test
-      run: go test -v ./...
+      run: go test -v .
 
     - name: Zip the binary
       uses: montudor/action-zip@v1.0.0
       with:
     # See montudor/action-zip README.md for more info
-       args: zip stocktrend.zip stocktrend
+       args: zip stocktrend.zip ./stocktrend
           
 
     - name: Upload file to bucket
@@ -39,7 +43,7 @@ jobs:
       with:
         args: --acl public-read
       env:
-        FILE: ./lambda.zip
+        FILE: ./stocktrend.zip
         AWS_REGION: 'us-east-1'
         S3_BUCKET: stocktrend
         S3_KEY: artifacts
