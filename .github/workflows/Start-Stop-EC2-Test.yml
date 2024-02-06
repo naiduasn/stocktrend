@@ -1,0 +1,35 @@
+name: Start-Stop-EC2
+
+on:
+  schedule:
+    # Start EC2 instance every weekday (Monday to Friday) at 9 AM IST
+    - cron: "0 3 * * 1-5"
+    # Stop EC2 instance every weekday (Monday to Friday) at 3:30 PM IST
+    - cron: "30 10 * * 1-5"
+
+jobs:
+  start-stop-ec2:
+    runs-on: ubuntu-latest
+    env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+        AWS_DEFAULT_REGION: "ap-south-1"
+        
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
+      - name: Start EC2 Instance
+        if: ${{ github.event_name == 'schedule' && github.run_number == 1 }}
+        run: |
+          aws ec2 start-instances --instance-ids ${{ vars.EC2INSTANCE }}
+
+      - name: Stop EC2 Instance
+        if: ${{ github.event_name == 'schedule' && github.run_number == 1 }}
+        run: |
+          aws ec2 stop-instances --instance-ids ${{ vars.EC2INSTANCE }}
