@@ -25,6 +25,10 @@ jobs:
         run: |
           aws ec2 start-instances --instance-ids ${{ vars.EC2INSTANCE }}
 
+      - name: Sleep
+        run: |
+          sleep 30s
+
       - name: Stop EC2 Instance
         run: |
           aws ec2 stop-instances --instance-ids ${{ vars.EC2INSTANCE }}
