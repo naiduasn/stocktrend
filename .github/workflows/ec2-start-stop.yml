@@ -25,11 +25,11 @@ jobs:
           sudo apt-get install -y awscli
 
       - name: Start EC2 Instance
-        if: ${{ github.event_name == 'schedule' && github.run_number == 1 && github.event.schedule == '0 3 * * 1-5'}}
+        if: ${{ github.event_name == 'schedule' && github.event.schedule == '0 3 * * 1-5'}}
         run: |
           aws ec2 start-instances --instance-ids ${{ vars.EC2INSTANCE }}
 
       - name: Stop EC2 Instance
-        if: ${{ github.event_name == 'schedule' && github.run_number == 1 && github.event.schedule == '30 10 * * 1-5'}}
+        if: ${{ github.event_name == 'schedule' && github.event.schedule == '30 10 * * 1-5'}}
         run: |
           aws ec2 stop-instances --instance-ids ${{ vars.EC2INSTANCE }}
